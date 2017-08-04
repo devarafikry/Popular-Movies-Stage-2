@@ -1,0 +1,57 @@
+<resources>
+    <string name="error">Cannot retrieve data, please check your connection.</string>
+    <string name="app_name">Popular Movies</string>
+    <string name="release_date">Release Date:</string>
+    <string name="average_vote">Average Vote:</string>
+    <string name="trailer">Trailer:</string>
+    <string name="oh_hi_mark">Favourite</string>
+    <string name="unmark">Unfavorite</string>
+    <string name="sortby">sortby</string>
+    <string name="favourite">favourite</string>
+    <string name="sort_popular">popular</string>
+    <string name="sort_upcoming">upcoming</string>
+    <string name="sort_favourite">favourite</string>
+    <string name="sort_now_playing">now_playing</string>
+    <string name="sort_top_rated">top_rated</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="upcoming_movies">Upcoming Movies</string>
+    <string name="favourited_movies">Favourited Movies</string>
+    <string name="top_rated_movies">Top Rated Movies</string>
+    <string name="now_playing_movies">Now Playing Movies</string>
+    <string name="sorry_not_available">Sorry, this trailer is not available</string>
+    <string name="you_favourited_this">You favourited this movie! :3</string>
+    <string name="you_unfavourited_this">You unfavourited this movie :(</string>
+    <string name="vote">%1$s/10</string>
+    <string name="review_by">A review by %1$s</string>
+    <string name="review_of">%1$s Reviews</string>
+
+    <!--String related to end point of tmdb-->
+    <string name="end_detail_id" translatable="false">id</string>
+    <string name="end_detail_title" translatable="false">original_title</string>
+    <string name="end_detail_release_date" translatable="false">release_date</string>
+    <string name="end_detail_duration" translatable="false">runtime</string>
+    <string name="end_detail_description" translatable="false">overview</string>
+    <string name="end_detail_vote" translatable="false">vote_average</string>
+    <string name="end_detail_poster_path" translatable="false">poster_path</string>
+
+    <string name="end_movie_review_id" translatable="false">id</string>
+    <string name="end_movie_review_author" translatable="false">author</string>
+    <string name="end_movie_review_content" translatable="false">content</string>
+    <string name="end_movie_review_iso_639_1" translatable="false">iso_639_1</string>
+    <string name="end_movie_review_media_id" translatable="false">media_id</string>
+    <string name="end_movie_review_media_title" translatable="false">media_title</string>
+    <string name="end_movie_review_media_type" translatable="false">media_type</string>
+    <string name="end_movie_review_url" translatable="false">url</string>
+
+    <string name="end_review_id" translatable="false">id</string>
+    <string name="end_review_page" translatable="false">page</string>
+    <string name="end_review_content" translatable="false">content</string>
+    <string name="end_review_results" translatable="false">results</string>
+    <string name="end_review_results_id" translatable="false">id</string>
+    <string name="end_review_results_author" translatable="false">author</string>
+    <string name="end_review_results_content" translatable="false">content</string>
+    <string name="end_review_results_url" translatable="false">url</string>
+
+    <string name="end_review_total_pages" translatable="false">total_pages</string>
+    <string name="end_review_total_results" translatable="false">total_results</string>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <ScrollView android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+        <LinearLayout
+            android:layout_margin="@dimen/layout_detail_review_margin"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.tahutelorcommunity.popularmovies.activity.ReviewDetailActivity">
+            <TextView
+                tools:text="TITLE"
+                style="@style/TextViewStyle.Heading"
+                android:visibility="gone"
+                android:id="@+id/review_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                style="@style/TextViewStyle"
+                tools:text="sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+                android:id="@+id/review_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+    </ScrollView>
+</layout>
