@@ -73,7 +73,6 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
         public Context mContext;
         public String trailerUrl;
         public Activity mActivity;
-        Context context = null;
         public TrailerAdapterViewHolder(View itemView) {
             super(itemView);
             mContext = itemView.getContext();
@@ -93,11 +92,11 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
                 String key = data.getString("key");
                 youtubeUri = Uri.parse(NetworkUtils.buildGetYoutubeUrl(key).toString());
             } catch (Exception e){
-                Toast.makeText(context, context.getString(R.string.sorry_not_available), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, mContext.getString(R.string.sorry_not_available), Toast.LENGTH_SHORT).show();
             }
             intent.setData(youtubeUri);
-            if(intent.resolveActivity(context.getPackageManager()) !=null ){
-                context.startActivity(intent);
+            if(intent.resolveActivity(mContext.getPackageManager()) !=null ){
+                mContext.startActivity(intent);
             }
         }
     }
