@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class NetworkUtils {
     private final static String MOVIE_DATABASE_BASE_URL = "http://api.themoviedb.org/3/movie/";
-    private final static String MOVIE_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185/";
+    private final static String MOVIE_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w500/";
     private final static String YOUTUBE_BASE_URL = "https://www.youtube.com/";
     private final static String REVIEW_END = "reviews";
 

@@ -35,11 +35,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String>{
 
-    private TextView error_text;
-    private RecyclerView movieRecyclerView;
-    private ProgressBar progressBarMovies;
+    @BindView(R.id.text_error) TextView error_text;
+    @BindView(R.id.recyclerview_movies) RecyclerView movieRecyclerView;
+    @BindView(R.id.progress_bar_movies) ProgressBar progressBarMovies;
     private MovieAdapter movieAdapter;
     private FavouriteAdapter favouriteAdapter;
     private String api_key ;
@@ -48,10 +51,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private String currentCategory;
     private String currentCategoryKey;
     private LoaderManager.LoaderCallbacks<Cursor> favouriteCallback;
+    private GridLayoutManager gridLayoutManager;
+    private int lastPosition;
 
     private static final String SORT_URL_ARGS_KEY = "sortUrlString";
     private static final String SORT_CATEGORY_ARGS_KEY = "sortCategoryString";
     private static final String SORT_CATEGORY_KEY_ARGS_KEY = "sortCategoryKeyString";
+    private static final String SORT_POSITION_ARGS_KEY = "sortPositionKeyString";
     private static final String SORT_ARGS_KEY = "sortString";
     private static final int ID_MOVIE_LOADER = 87;
     private static final int ID_FAVOURITE_LOADER = 11;
@@ -60,37 +66,27 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
         api_key = getResources().getString(R.string.tmdb_api_key);
         actionBar = getSupportActionBar();
-        if(savedInstanceState!=null){
-            if(savedInstanceState.containsKey(SORT_CATEGORY_KEY_ARGS_KEY) &&
-                    savedInstanceState.containsKey(SORT_CATEGORY_ARGS_KEY)){
-                currentCategoryKey = savedInstanceState.getString(SORT_CATEGORY_KEY_ARGS_KEY);
-                currentCategory = savedInstanceState.getString(SORT_CATEGORY_ARGS_KEY);
-            }
-        } else{
-            currentCategoryKey = getString(R.string.sort_popular);
-            this.currentCategory = getString(R.string.popular_movies);
-        }
 
+
+        currentCategoryKey = getString(R.string.sort_popular);
+        this.currentCategory = getString(R.string.popular_movies);
         action_bar_name = currentCategory;
 
         if(getSupportActionBar()!=null){
             actionBar.setTitle(action_bar_name);
         }
 
-        error_text = (TextView) findViewById(R.id.text_error);
-        progressBarMovies = (ProgressBar) findViewById(R.id.progress_bar_movies);
-        movieRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movies);
-        LinearLayoutManager layoutManager;
+
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            layoutManager = new GridLayoutManager(this,2);
+            gridLayoutManager = new GridLayoutManager(this,2);
         }
         else{
-            layoutManager = new GridLayoutManager(this,4);
+            gridLayoutManager = new GridLayoutManager(this,4);
         }
-        movieRecyclerView.setLayoutManager(layoutManager);
+        movieRecyclerView.setLayoutManager(gridLayoutManager);
         movieRecyclerView.setHasFixedSize(true);
         movieAdapter = new MovieAdapter();
         favouriteAdapter = new FavouriteAdapter();
@@ -98,7 +94,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         movieRecyclerView.setAdapter(movieAdapter);
         initFavouriteCallback();
 
-        sortMovie(currentCategoryKey, action_bar_name);
+
+            sortMovie(currentCategoryKey, currentCategory);
     }
 
     private void loadMovie(boolean isLoadMovie){
@@ -122,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onResume() {
         super.onResume();
-        if(currentCategory!=null && currentCategoryKey!=null){
-            sortMovie(currentCategoryKey, currentCategory);
-        }
+//        if(currentCategory!=null && currentCategoryKey!=null){
+//            sortMovie(currentCategoryKey, currentCategory);
+//        }
     }
 
     @Override
@@ -132,6 +129,33 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onSaveInstanceState(outState);
         outState.putString(SORT_CATEGORY_KEY_ARGS_KEY, currentCategoryKey);
         outState.putString(SORT_CATEGORY_ARGS_KEY, currentCategory);
+        int mScrollPosition = 0;
+        if(gridLayoutManager != null && gridLayoutManager instanceof GridLayoutManager){
+            mScrollPosition = gridLayoutManager.findFirstVisibleItemPosition();
+        }
+        outState.putInt(SORT_POSITION_ARGS_KEY, mScrollPosition);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState!=null){
+            if(savedInstanceState.containsKey(SORT_CATEGORY_KEY_ARGS_KEY) &&
+                    savedInstanceState.containsKey(SORT_CATEGORY_ARGS_KEY)){
+                currentCategoryKey = savedInstanceState.getString(SORT_CATEGORY_KEY_ARGS_KEY);
+                currentCategory = savedInstanceState.getString(SORT_CATEGORY_ARGS_KEY);
+            }  else{
+                currentCategoryKey = getString(R.string.sort_popular);
+                this.currentCategory = getString(R.string.popular_movies);
+            }
+            if(savedInstanceState.containsKey(SORT_POSITION_ARGS_KEY)){
+                if(movieRecyclerView != null && gridLayoutManager != null){
+                    lastPosition = savedInstanceState.getInt(SORT_POSITION_ARGS_KEY,0);
+//                    movieRecyclerView.getLayoutManager().scrollToPosition(lastPosition);
+                }
+            }
+        }
+
 
     }
 
@@ -211,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
                 favouriteAdapter.swapCursor(data, currentCategory);
                 movieRecyclerView.swapAdapter(favouriteAdapter,false);
+
                 loadMovie(false);
 //                    favouriteAdapter.notifyDataSetChanged();
             }
@@ -268,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             JSONObject initialJson = new JSONObject(data);
             JSONArray  jsonArray = initialJson.getJSONArray("results");
             movieAdapter.setMovieData(jsonArray, currentCategory);
+            movieRecyclerView.scrollToPosition(lastPosition);
             loadMovie(false);
         }
         catch (Exception e){

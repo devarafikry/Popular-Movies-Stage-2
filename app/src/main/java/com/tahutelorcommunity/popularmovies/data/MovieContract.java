@@ -30,6 +30,6 @@ public class MovieContract {
         public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_VOTE_AVERAGE = "vote";
         public static final String COLUMN_POSTER_BYTE = "posterByte";
-
+        public static final String COLUMN_BACKDROP_BYTE = "backdropByte";
     }
 }

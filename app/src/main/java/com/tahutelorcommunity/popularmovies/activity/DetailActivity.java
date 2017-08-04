@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
@@ -18,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +33,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.tahutelorcommunity.popularmovies.R;
 import com.tahutelorcommunity.popularmovies.adapter.MovieAdapter;
@@ -46,6 +50,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class DetailActivity extends AppCompatActivity{
 
     public final static String DETAIL_ACTIVITY_EXTRA = "extra_message";
@@ -55,14 +62,16 @@ public class DetailActivity extends AppCompatActivity{
     public final static int CURSOR_DATASOURCE = 1;
     public final static int INTERNET_DATASOURCE = 0;
 
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     public String category;
     private TextView error_text;
     private FloatingActionButton reviewButton;
     private ImageView btn_fav, btn_unfav;
-    private ScrollView detail_view;
     private ProgressBar pb_loading;
     private RecyclerView trailer_recyclerview;
     private TrailerAdapter trailerAdapter;
+    private CoordinatorLayout content;
     private String index;
     private String api_key ;
     private Intent intent;
@@ -92,7 +101,10 @@ public class DetailActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        ButterKnife.bind(this);
         intent = getIntent();
+        setSupportActionBar(toolbar);
 
         if(intent.hasExtra(DETAIL_ACTIVITY_EXTRA)){
             index = intent.getStringExtra(DETAIL_ACTIVITY_EXTRA);
@@ -106,16 +118,18 @@ public class DetailActivity extends AppCompatActivity{
         if(getSupportActionBar() != null){
             getSupportActionBar().setTitle(category);
         }
-
+        content = (CoordinatorLayout) findViewById(R.id.detail_view);
         api_key = getString(R.string.tmdb_api_key);
         btn_fav = (ImageView) findViewById(R.id.btn_fav);
         btn_unfav = (ImageView) findViewById(R.id.btn_unfav);
-        detail_view = (ScrollView) findViewById(R.id.detail_view);
         pb_loading = (ProgressBar) findViewById(R.id.pb_loading);
         trailer_recyclerview = (RecyclerView) findViewById(R.id.recyclerview_trailers);
-        CustomLinearLayoutManager customLayoutManager = new CustomLinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        trailer_recyclerview.setLayoutManager(customLayoutManager);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        trailer_recyclerview.setLayoutManager(linearLayoutManager);
         trailer_recyclerview.setHasFixedSize(true);
+        trailer_recyclerview.setNestedScrollingEnabled(true);
+        trailer_recyclerview.setFocusable(false);
+
         trailerAdapter = new TrailerAdapter();
         trailer_recyclerview.setAdapter(trailerAdapter);
         reviewButton = (FloatingActionButton) findViewById(R.id.review_button);
@@ -135,6 +149,7 @@ public class DetailActivity extends AppCompatActivity{
                 initMovieDataCallback();
                 break;
         }
+
         initCheckFavouriteCallback();
         initMovieDataCallback();
         checkFavouriteStatus();
@@ -155,6 +170,16 @@ public class DetailActivity extends AppCompatActivity{
         } else{
             btn_unfav.setVisibility(View.GONE);
             btn_fav.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void loadMovie(boolean isLoadMovie){
+        if(isLoadMovie){
+            pb_loading.setVisibility(View.VISIBLE);
+            content.setVisibility(View.INVISIBLE);
+        } else {
+            pb_loading.setVisibility(View.INVISIBLE);
+            content.setVisibility(View.VISIBLE);
         }
     }
 
@@ -183,7 +208,7 @@ public class DetailActivity extends AppCompatActivity{
                         return new AsyncTaskLoader<String>(DetailActivity.this) {
                             @Override
                             protected void onStartLoading() {
-//                        loadMovie(true);
+                        loadMovie(true);
                                 forceLoad();
                             }
 
@@ -213,7 +238,7 @@ public class DetailActivity extends AppCompatActivity{
                         return new AsyncTaskLoader<String>(DetailActivity.this) {
                             @Override
                             protected void onStartLoading() {
-//                        loadMovie(true);
+                        loadMovie(true);
                                 forceLoad();
                             }
 
@@ -247,8 +272,8 @@ public class DetailActivity extends AppCompatActivity{
                 int id = loader.getId();
                 switch (id) {
                     case LOADER_ID_DETAIL:
+                        loadMovie(false);
                         try {
-                            detail_view.setVisibility(View.VISIBLE);
                             pb_loading.setVisibility(View.GONE);
                             JSONObject jsonObject = new JSONObject(data);
                             final String movieId = jsonObject.getString(getString(R.string.end_detail_id));
@@ -264,7 +289,7 @@ public class DetailActivity extends AppCompatActivity{
                             vote = vote_s;
 
                             poster_path = jsonObject.getString(getString(R.string.end_detail_poster_path)).substring(1);
-
+                            String backdrop_path = jsonObject.getString(getString(R.string.end_detail_backdrop_path)).substring(1);
 
                             int dur = Integer.valueOf(duration);
                             int min = dur%60;
@@ -276,62 +301,75 @@ public class DetailActivity extends AppCompatActivity{
                             movie_duration.setText(hour+"h "+min+"min");
                             movie_description.setText(description);
                             movie_vote.setText(vote);
-                            Picasso.with(DetailActivity.this).load(String.valueOf(NetworkUtils.buildImageUrl(poster_path))).into(movie_image);
-
-                            Bitmap bitmap = ((BitmapDrawable) movie_image.getDrawable()).getBitmap();
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                            final byte[] bytes = baos.toByteArray();
-
-                            btn_fav.setOnClickListener(new View.OnClickListener() {
+                            Picasso.with(DetailActivity.this).load(String.valueOf(NetworkUtils.buildImageUrl(backdrop_path))).into(movie_image, new Callback() {
                                 @Override
-                                public void onClick(View view) {
+                                public void onSuccess() {
+                                    btn_fav.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
 
-                                    Uri mNewUri;
+                                            Bitmap bitmap = ((BitmapDrawable) movie_image.getDrawable()).getBitmap();
+                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                            final byte[] bytes = baos.toByteArray();
 
-                                    ContentValues cv = new ContentValues();
-                                    cv.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
-                                    cv.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, description);
-                                    cv.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, vote);
-                                    cv.put(MovieContract.MovieEntry.COLUMN_DURATION, duration);
-                                    cv.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movieId);
-                                    cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, release_date);
-                                    cv.put(MovieContract.MovieEntry.COLUMN_POSTER_BYTE, bytes);
+                                            Uri mNewUri;
 
-                                    mNewUri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
-                                            cv);
+                                            ContentValues cv = new ContentValues();
+                                            cv.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
+                                            cv.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, description);
+                                            cv.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, vote);
+                                            cv.put(MovieContract.MovieEntry.COLUMN_DURATION, duration);
+                                            cv.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movieId);
+                                            cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, release_date);
+                                            cv.put(MovieContract.MovieEntry.COLUMN_POSTER_BYTE, bytes);
 
-                                    if(mNewUri != null){
-                                        setFavouriteCondition(true);
-                                    }
+                                            mNewUri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
+                                                    cv);
 
-                                    Log.d("Test Insert", mNewUri.toString());
-                                    notifyUser(getString(R.string.you_favourited_this));
+                                            if(mNewUri != null){
+                                                setFavouriteCondition(true);
+                                            }
+
+                                            Log.d("Test Insert", mNewUri.toString());
+                                            notifyUser(getString(R.string.you_favourited_this));
+                                        }
+                                    });
+
+                                    btn_unfav.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            String movieId = index;
+                                            Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+                                            uri = uri.buildUpon().appendPath(movieId).build();
+
+                                            int result = getContentResolver().delete(uri, null, null);
+                                            if(result > 0){
+                                                getSupportLoaderManager().restartLoader(LOADER_ID_CHECK_FAVOURITE, null, checkFavouriteCallback);
+                                                notifyUser(getString(R.string.you_unfavourited_this));
+                                            }
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onError() {
+
                                 }
                             });
 
-                            btn_unfav.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    String movieId = index;
-                                    Uri uri = MovieContract.MovieEntry.CONTENT_URI;
-                                    uri = uri.buildUpon().appendPath(movieId).build();
 
-                                    int result = getContentResolver().delete(uri, null, null);
-                                    if(result > 0){
-                                        getSupportLoaderManager().restartLoader(LOADER_ID_CHECK_FAVOURITE, null, checkFavouriteCallback);
-                                        notifyUser(getString(R.string.you_unfavourited_this));
-                                    }
-                                }
-                            });
+
                         }
                         catch (Exception e){
                             e.printStackTrace();
+//                            finish();
 //                            notifyUser(getString(R.string.error));
                         }
                         break;
 
                     case LOADER_ID_TRAILER:
+                        loadMovie(false);
                         try {
                             JSONObject initialJson = new JSONObject(data);
                             JSONArray result = initialJson.getJSONArray("results");
@@ -398,7 +436,6 @@ public class DetailActivity extends AppCompatActivity{
                         data.moveToFirst();
                         if(dataSourceType == CURSOR_DATASOURCE){
                             try {
-                                detail_view.setVisibility(View.VISIBLE);
                                 pb_loading.setVisibility(View.GONE);
 
                                 final String movieId = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID));
@@ -500,17 +537,7 @@ public class DetailActivity extends AppCompatActivity{
         startActivity(intent);
     }
 
-    public class CustomLinearLayoutManager extends LinearLayoutManager {
-        public CustomLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
-            super(context, orientation, reverseLayout);
 
-        }
-
-        @Override
-        public boolean canScrollVertically() {
-            return false;
-        }
-    }
 
     private void getTrailer(String movieId){
         URL movieDataUrl = NetworkUtils.buildGetVideo(movieId, api_key);

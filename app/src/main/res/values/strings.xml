@@ -33,6 +33,7 @@
     <string name="end_detail_description" translatable="false">overview</string>
     <string name="end_detail_vote" translatable="false">vote_average</string>
     <string name="end_detail_poster_path" translatable="false">poster_path</string>
+    <string name="end_detail_backdrop_path" translatable="false">backdrop_path</string>
 
     <string name="end_movie_review_id" translatable="false">id</string>
     <string name="end_movie_review_author" translatable="false">author</string>
