@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:id="@+id/constraint_content"
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+                                                 xmlns:tools="http://schemas.android.com/tools"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="match_parent"
+                                                 android:fitsSystemWindows="true"
+                                                 xmlns:android="http://schemas.android.com/apk/res/android" >
 
-
-
-    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/detail_view"
+    <android.support.design.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
+        android:id="@+id/coordinatorLayout"
+
         android:layout_height="match_parent"
         android:visibility="visible"
-        tools:visibility="visible">
-
+        tools:visibility="invisible">
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/review_button"
             android:layout_width="wrap_content"
@@ -27,68 +25,82 @@
             android:padding="@dimen/floating_button_padding"
             app:fabSize="normal"
             app:srcCompat="@drawable/ic_review" />
-        <LinearLayout
+
+        <FrameLayout
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:nestedScrollingEnabled="true"
+
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
-
-
-            <TextView
-                android:id="@+id/trailers"
-                style="@style/TextViewStyle.Heading"
+            android:layout_height="match_parent">
+            <ProgressBar
+                android:layout_gravity="center"
+                android:id="@+id/progress_bar_trailer"
+                android:layout_width="42dp"
+                android:layout_height="42dp"/>
+            <LinearLayout
+                android:id="@+id/trailer_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/trailer"
-                android:textSize="18sp" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
 
-            <TextView
-                android:id="@+id/text_error"
-                style="@style/TextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/error"
-                android:textColor="@android:color/darker_gray"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                <TextView
+                    android:id="@+id/trailers"
+                    style="@style/TextViewStyle.Heading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:text="@string/trailer"
+                    android:textSize="18sp" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerview_trailers"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                <TextView
+                    android:id="@+id/text_error"
+                    style="@style/TextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:text="@string/error"
+                    android:textColor="@android:color/darker_gray"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
-        </LinearLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerview_trailers"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            </LinearLayout>
+
+        </FrameLayout>
 
 
         <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
             <android.support.design.widget.CollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar"
-                app:titleEnabled="false"
                 app:contentScrim="?attr/colorPrimary"
+                app:titleEnabled="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
                 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="?attr/actionBarSize"
-                    android:orientation="vertical"
-                    tools:context="com.tahutelorcommunity.popularmovies.activity.DetailActivity">
+                              xmlns:tools="http://schemas.android.com/tools"
+                              android:id="@+id/detail_view"
+
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_marginTop="?attr/actionBarSize"
+                              android:orientation="vertical"
+                              tools:context="com.tahutelorcommunity.popularmovies.activity.DetailActivity">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
+                        android:layout_height="100dp"
                         android:background="@color/colorPrimary"
                         android:orientation="horizontal">
 
@@ -111,14 +123,14 @@
                                 android:id="@+id/btn_fav"
                                 android:layout_width="@dimen/star_size"
                                 android:layout_height="@dimen/star_size"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_star_border" />
+                                android:layout_gravity="center_vertical|center_horizontal"
+                                android:src="@drawable/ic_star_border"/>
 
                             <ImageView
                                 android:id="@+id/btn_unfav"
+                                android:layout_gravity="center_vertical|center_horizontal"
                                 android:layout_width="@dimen/star_size"
                                 android:layout_height="@dimen/star_size"
-                                android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_star_full"
                                 android:visibility="gone" />
                         </FrameLayout>
@@ -129,13 +141,23 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <ImageView
-                            android:id="@+id/movie_image"
+                        <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="200dp"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/error" />
+                            android:layout_height="200dp">
 
+                            <ImageView
+                                android:id="@+id/movie_image"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/error" />
+
+                            <ProgressBar
+                                android:layout_gravity="center"
+                                android:id="@+id/progress_bar_image"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"/>
+                        </FrameLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
 

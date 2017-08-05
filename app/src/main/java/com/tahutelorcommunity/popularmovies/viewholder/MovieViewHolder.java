@@ -1,5 +1,6 @@
 package com.tahutelorcommunity.popularmovies.viewholder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,7 @@ import android.widget.ProgressBar;
 
 import com.tahutelorcommunity.popularmovies.R;
 import com.tahutelorcommunity.popularmovies.activity.DetailActivity;
+import com.tahutelorcommunity.popularmovies.activity.MainActivity;
 
 import org.json.JSONObject;
 
@@ -24,8 +26,10 @@ public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnC
     public int dataSourceType;
     public final ImageView movie_image;
     public final ProgressBar pb_loading;
-    public MovieViewHolder(View view){
+    private MainActivity activity;
+    public MovieViewHolder(View view, MainActivity activity){
         super(view);
+        this.activity = activity;
         this.view = view;
         context = view.getContext();
         movie_image = (ImageView) view.findViewById(R.id.movie_image);
@@ -44,9 +48,10 @@ public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnC
             intent.putExtra(DetailActivity.DETAIL_ACTIVITY_EXTRA,id);
             intent.putExtra(DetailActivity.DETAIL_ACTIVITY_CATEGORY_EXTRA, category);
             intent.putExtra(DetailActivity.DETAIL_ACTIVITY_DATA_SOURCE, dataSourceType);
+            intent.putExtra(DetailActivity.DETAIL_ACTIVITY_POSITION, clickedPosition);
         } catch (Exception e){
             e.printStackTrace();
         }
-        context.startActivity(intent);
+        activity.startActivityForResult(intent, MainActivity.LAST_CLICKED_ITEM);
     }
 }

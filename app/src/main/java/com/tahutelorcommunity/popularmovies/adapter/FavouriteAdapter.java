@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import com.squareup.picasso.Picasso;
 import com.tahutelorcommunity.popularmovies.R;
 import com.tahutelorcommunity.popularmovies.activity.DetailActivity;
+import com.tahutelorcommunity.popularmovies.activity.MainActivity;
 import com.tahutelorcommunity.popularmovies.data.MovieContract;
 import com.tahutelorcommunity.popularmovies.utils.NetworkUtils;
 import com.tahutelorcommunity.popularmovies.viewholder.MovieViewHolder;
@@ -33,10 +34,11 @@ import java.util.ArrayList;
 public class FavouriteAdapter extends RecyclerView.Adapter<MovieViewHolder>{
     private Cursor mCursor;
     private String category;
+    private MainActivity activity;
     private ArrayList<String> data = new ArrayList<>();
 
-    public FavouriteAdapter(){
-
+    public FavouriteAdapter(MainActivity activity){
+        this.activity = activity;
     }
 
     @Override
@@ -93,7 +95,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<MovieViewHolder>{
         boolean shouldAttachToParentImmediately = false;
 
         View view = inflater.inflate(R.layout.movie_list_item,parent, shouldAttachToParentImmediately);
-        return new MovieViewHolder(view);
+        return new MovieViewHolder(view, activity);
     }
 //
 //    class FavouriteAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

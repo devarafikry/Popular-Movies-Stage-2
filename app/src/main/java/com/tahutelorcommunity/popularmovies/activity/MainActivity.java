@@ -1,5 +1,6 @@
 package com.tahutelorcommunity.popularmovies.activity;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
@@ -59,8 +60,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final String SORT_CATEGORY_KEY_ARGS_KEY = "sortCategoryKeyString";
     private static final String SORT_POSITION_ARGS_KEY = "sortPositionKeyString";
     private static final String SORT_ARGS_KEY = "sortString";
+    public static final String LAST_CLICKED_ITEM_EXTRA = "lastClickedExtra";
+    public static final int LAST_CLICKED_ITEM = 11;
     private static final int ID_MOVIE_LOADER = 87;
     private static final int ID_FAVOURITE_LOADER = 11;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case LAST_CLICKED_ITEM:
+            if(resultCode == RESULT_OK){
+                lastPosition = data.getIntExtra(LAST_CLICKED_ITEM_EXTRA, lastPosition);
+            }
+                break;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +102,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         movieRecyclerView.setLayoutManager(gridLayoutManager);
         movieRecyclerView.setHasFixedSize(true);
-        movieAdapter = new MovieAdapter();
-        favouriteAdapter = new FavouriteAdapter();
+        movieAdapter = new MovieAdapter(this);
+        favouriteAdapter = new FavouriteAdapter(this);
 
         movieRecyclerView.setAdapter(movieAdapter);
         initFavouriteCallback();
 
-
-            sortMovie(currentCategoryKey, currentCategory);
+        sortMovie(currentCategoryKey, currentCategory);
     }
 
     private void loadMovie(boolean isLoadMovie){
@@ -119,9 +132,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onResume() {
         super.onResume();
-//        if(currentCategory!=null && currentCategoryKey!=null){
-//            sortMovie(currentCategoryKey, currentCategory);
-//        }
+        sortMovie(currentCategoryKey, currentCategory);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(gridLayoutManager != null && gridLayoutManager instanceof GridLayoutManager){
+            lastPosition = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
+            if(lastPosition == -1){
+                lastPosition = gridLayoutManager.findFirstVisibleItemPosition();
+            }
+        }
     }
 
     @Override
@@ -129,11 +152,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onSaveInstanceState(outState);
         outState.putString(SORT_CATEGORY_KEY_ARGS_KEY, currentCategoryKey);
         outState.putString(SORT_CATEGORY_ARGS_KEY, currentCategory);
-        int mScrollPosition = 0;
         if(gridLayoutManager != null && gridLayoutManager instanceof GridLayoutManager){
-            mScrollPosition = gridLayoutManager.findFirstVisibleItemPosition();
+            lastPosition = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
+            if(lastPosition == -1){
+                lastPosition = gridLayoutManager.findFirstVisibleItemPosition();
+            }
         }
-        outState.putInt(SORT_POSITION_ARGS_KEY, mScrollPosition);
+        outState.putInt(SORT_POSITION_ARGS_KEY, lastPosition);
     }
 
     @Override
@@ -156,11 +181,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }
 
-
+        sortMovie(currentCategoryKey,currentCategory);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        lastPosition = 0;
         switch (item.getItemId()){
             case R.id.action_popular:
                 currentCategoryKey = getString(R.string.sort_popular);
@@ -202,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void sortMovie(final String sortBy, final String category){
+        getSupportActionBar().setTitle(category);
         if(sortBy.equals(getString(R.string.sort_favourite))){
             getSupportLoaderManager().restartLoader(ID_FAVOURITE_LOADER, null, favouriteCallback);
         } else{
@@ -247,6 +274,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         };
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getSupportLoaderManager().destroyLoader(ID_FAVOURITE_LOADER);
+        getSupportLoaderManager().destroyLoader(ID_MOVIE_LOADER);
+    }
 
     @Override
     public Loader<String> onCreateLoader(int id, Bundle args) {

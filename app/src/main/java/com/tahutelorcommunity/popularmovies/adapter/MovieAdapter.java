@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import com.squareup.picasso.Picasso;
 import com.tahutelorcommunity.popularmovies.R;
 import com.tahutelorcommunity.popularmovies.activity.DetailActivity;
+import com.tahutelorcommunity.popularmovies.activity.MainActivity;
 import com.tahutelorcommunity.popularmovies.utils.NetworkUtils;
 import com.tahutelorcommunity.popularmovies.viewholder.MovieViewHolder;
 
@@ -27,9 +28,10 @@ import org.json.JSONObject;
 public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder>{
     private JSONArray movieJsonArray;
     private String category;
+    private MainActivity activity;
 
-    public MovieAdapter(){
-
+    public MovieAdapter(MainActivity activity){
+        this.activity = activity;
     }
 
     @Override
@@ -78,7 +80,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder>{
         boolean shouldAttachToParentImmediately = false;
 
         View view = inflater.inflate(R.layout.movie_list_item,parent, shouldAttachToParentImmediately);
-        return new MovieViewHolder(view);
+        return new MovieViewHolder(view, activity);
     }
 
 }
